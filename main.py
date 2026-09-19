@@ -16,7 +16,7 @@ def run_web():
 
 async def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-    if not config.BOT_TOKEN:
+    if not config.BOT_TOKEN:8763383205:AAFeRlMGdhVBEn8SBsretOjsB_dgmjMV3TM
         raise SystemExit("Не задан BOT_TOKEN (см. .env.example)")
     if not config.ADMIN_IDS:
         logging.warning("ADMIN_IDS пуст: команда /admin никому не будет доступна")
