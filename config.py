@@ -16,7 +16,7 @@ def _ids(raw: str) -> set[int]:
     return result
 
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
+BOT_TOKEN = os.getenv("8763383205:AAFeRlMGdhVBEn8SBsretOjsB_dgmjMV3TM", "").strip()
 ADMIN_IDS = _ids(os.getenv("ADMIN_IDS", ""))
 WEB_URL = os.getenv("WEB_URL", "").strip().rstrip("/")
 PORT = int(os.getenv("PORT") or 8080)
