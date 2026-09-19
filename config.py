@@ -17,11 +17,11 @@ def _ids(raw: str) -> set[int]:
 
 
 BOT_TOKEN = os.getenv("8763383205:AAFeRlMGdhVBEn8SBsretOjsB_dgmjMV3TM", "").strip()
-ADMIN_IDS = _ids(os.getenv("ADMIN_IDS", ""))
-WEB_URL = os.getenv("WEB_URL", "").strip().rstrip("/")
-PORT = int(os.getenv("PORT") or 8080)
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
-SECRET_KEY = os.getenv("SECRET_KEY", "")
+ADMIN_IDS = _ids(os.getenv("5000488732", ""))
+WEB_URL = os.getenv("hddjd-production.up.railway.app", "").strip().rstrip("/")
+PORT = int(os.getenv("8088") or 8080)
+ADMIN_PASSWORD = os.getenv("maksumtop1", "")
+SECRET_KEY = os.getenv("dd", "")
 CURRENCY = os.getenv("CURRENCY", "₽")
 TZ_OFFSET = float(os.getenv("TZ_OFFSET") or 3)
 
