@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Рассылка{% endblock %}
+{% block head %}{% if active %}<meta http-equiv="refresh" content="5">{% endif %}{% endblock %}
+{% block content %}
+<h1>Рассылка</h1>
+<form method="post" enctype="multipart/form-data" class="panel"
+      data-confirm="Отправить сообщение всем пользователям бота ({{ users }})? Отменить рассылку после старта нельзя.">
+  {{ csrf_input() }}
+  <div class="field">
+    <label for="text">Текст сообщения</label>
+    <textarea id="text" name="text" rows="6" maxlength="4000"></textarea>
+    <span class="hint">Доступно оформление: &lt;b&gt;жирный&lt;/b&gt;, &lt;i&gt;курсив&lt;/i&gt;, &lt;a href="https://..."&gt;ссылка&lt;/a&gt;.</span>
+  </div>
+  <div class="field">
+    <label for="image">Картинка</label>
+    <input id="image" type="file" name="image" accept="image/png,image/jpeg,image/webp">
+    <span class="hint">Необязательно. JPG, PNG или WEBP до 10 МБ.</span>
+  </div>
+  <button class="btn" {% if active or not users %}disabled{% endif %}>Отправить всем ({{ users }})</button>
+  {% if active %}<p class="hint">Сейчас идёт другая рассылка, страница обновляется сама.</p>{% endif %}
+  {% if not users %}<p class="hint">В боте пока нет пользователей: они появятся после первого /start.</p>{% endif %}
+</form>
+
+<h2 class="section-title">История рассылок</h2>
+{% if history %}
+<div class="list">
+  {% for b in history %}
+  <div class="item">
+    <div class="body">
+      <div class="name">{{ (b.text or 'Только картинка')[:120] }}{% if b.text and b.text|length > 120 %}…{% endif %}</div>
+      <div class="meta">{{ b.created_at|dt }}{% if b.image %} · с картинкой{% endif %}{% if b.status != 'pending' %} · доставлено {{ b.sent }} из {{ b.total }}{% if b.failed %}, ошибок {{ b.failed }}{% endif %}{% endif %}</div>
+    </div>
+    <span class="tag {{ 'off' if b.status == 'interrupted' else '' }}">{{ BROADCAST_STATUSES.get(b.status, b.status) }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="list"><div class="empty-note">Вы ещё не делали рассылок.</div></div>
+{% endif %}
+{% endblock %}

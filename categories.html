@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Категории{% endblock %}
+{% block content %}
+<h1>Категории</h1>
+<details class="panel" {% if not rows %}open{% endif %}>
+  <summary>Добавить категорию</summary>
+  <form method="post" action="{{ url_for('category_add') }}">
+    {{ csrf_input() }}
+    <div class="grid2">
+      <div class="field"><label for="name">Название</label><input id="name" type="text" name="name" maxlength="80" required></div>
+      <div class="field"><label for="sort">Порядок в меню</label><input id="sort" type="number" name="sort" placeholder="Пусто: в конец"></div>
+    </div>
+    <button class="btn">Добавить категорию</button>
+  </form>
+</details>
+
+{% if rows %}
+<div class="list">
+  {% for c in rows %}
+  <div class="item">
+    <div class="body wide">
+      <form method="post" action="{{ url_for('category_save', cid=c.id) }}" class="inline">
+        {{ csrf_input() }}
+        <input type="text" name="name" value="{{ c.name }}" maxlength="80" aria-label="Название" class="grow">
+        <input type="number" name="sort" value="{{ c.sort }}" aria-label="Порядок" class="w-sort">
+        <button class="btn small">Сохранить</button>
+      </form>
+      <div class="actions">
+        <span class="meta">Товаров: {{ c.n }}</span>
+        <a href="{{ url_for('products', cat=c.id) }}">Открыть товары</a>
+        <form method="post" action="{{ url_for('category_delete', cid=c.id) }}" data-confirm="Удалить категорию «{{ c.name }}»?">{{ csrf_input() }}<button class="btn danger small">Удалить</button></form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="list"><div class="empty-note">Категорий пока нет. Создайте первую, чтобы добавлять в неё товары.</div></div>
+{% endif %}
+{% endblock %}

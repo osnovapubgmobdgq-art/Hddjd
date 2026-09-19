@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Сводка{% endblock %}
+{% block content %}
+<h1>Сводка</h1>
+<dl class="facts">
+  <div><dt>Пользователей в боте</dt><dd>{{ s.users }}</dd></div>
+  <div><dt>Новых заказов</dt><dd>{{ s.new_orders }}</dd></div>
+  <div><dt>Товаров в продаже</dt><dd>{{ s.products }}</dd></div>
+  <div><dt>Выручка (оплачено и выполнено)</dt><dd>{{ s.revenue|money }}</dd></div>
+</dl>
+{% if s.blocked %}<p class="hint">{{ s.blocked }} пользователей заблокировали бота, рассылки им не отправляются.</p>{% endif %}
+
+<h2 class="section-title">Последние заказы</h2>
+{% if orders %}
+<div class="list">
+  {% for o in orders %}
+  <div class="item">
+    <div class="body">
+      <div class="name">№{{ o.id }} · {{ o.product_name }}</div>
+      <div class="meta">{{ o.created_at|dt }}{% if o.username %} · @{{ o.username }}{% endif %}{% if o.promo_code %} · промокод {{ o.promo_code }}{% endif %}</div>
+    </div>
+    <div class="side-info"><div class="name">{{ o.total|money }}</div><span class="tag {{ 'off' if o.status == 'cancelled' else '' }}">{{ STATUSES.get(o.status, o.status) }}</span></div>
+  </div>
+  {% endfor %}
+</div>
+<p><a href="{{ url_for('orders') }}">Все заказы</a></p>
+{% else %}
+<div class="list"><div class="empty-note">Заказов пока нет. Они появятся здесь, когда кто-то нажмёт «Купить» в боте.</div></div>
+{% endif %}
+{% endblock %}

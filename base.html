@@ -1,0 +1,47 @@
+{% macro flashes() %}{% for cat, msg in get_flashed_messages(with_categories=true) %}<div class="flash {{ cat }}" role="status">{{ msg }}</div>{% endfor %}{% endmacro -%}
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block title %}Админ-панель{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% block head %}{% endblock %}
+</head>
+<body>
+{% if session.get('admin') %}
+<div class="shell">
+  <aside class="side">
+    <div class="brand">Админ-панель</div>
+    <form method="post" action="{{ url_for('logout') }}" class="logout">{{ csrf_input() }}<button class="link">Выйти</button></form>
+    <nav aria-label="Разделы">
+      {% for ep, label in [('dashboard','Сводка'),('broadcast','Рассылка'),('banners','Баннеры'),('categories','Категории'),('products','Товары'),('promos','Промокоды'),('orders','Заказы')] %}
+      <a href="{{ url_for(ep) }}" class="{{ 'on' if request.endpoint == ep or (ep == 'products' and request.endpoint == 'product_edit') else '' }}">{{ label }}</a>
+      {% endfor %}
+    </nav>
+  </aside>
+  <main class="main">
+    {{ flashes() }}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% else %}
+<main class="solo">
+  <div class="solo-box">
+    {{ flashes() }}
+    {% block solo %}{% endblock %}
+  </div>
+</main>
+{% endif %}
+<script>
+document.addEventListener('submit', function (e) {
+  var msg = e.target.getAttribute('data-confirm');
+  if (msg && !confirm(msg)) e.preventDefault();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ p.name }}{% endblock %}
+{% block content %}
+<h1>Изменить товар</h1>
+<form method="post" enctype="multipart/form-data" class="panel">
+  {{ csrf_input() }}
+  <div class="field"><label for="name">Название</label><input id="name" type="text" name="name" value="{{ p.name }}" maxlength="120" required></div>
+  <div class="grid2">
+    <div class="field"><label for="category_id">Категория</label>
+      <select id="category_id" name="category_id">{% for c in cats %}<option value="{{ c.id }}" {{ 'selected' if c.id == p.category_id else '' }}>{{ c.name }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="price">Цена</label><input id="price" type="text" inputmode="decimal" name="price" value="{{ p.price|num }}" required></div>
+  </div>
+  <div class="field"><label for="description">Описание</label><textarea id="description" name="description" rows="5" maxlength="900">{{ p.description }}</textarea></div>
+  <div class="field">
+    <label for="image">Фото</label>
+    {% if p.image %}<img class="preview" src="{{ url_for('uploads', name=p.image) }}" alt="">{% endif %}
+    <input id="image" type="file" name="image" accept="image/png,image/jpeg,image/webp">
+    <span class="hint">Новое фото заменит текущее.</span>
+    {% if p.image %}<label class="check"><input type="checkbox" name="remove_image" value="1"> Удалить фото</label>{% endif %}
+  </div>
+  <label class="check"><input type="checkbox" name="active" value="1" {{ 'checked' if p.active else '' }}> Показывать в боте</label>
+  <div class="actions">
+    <button class="btn">Сохранить товар</button>
+    <a href="{{ url_for('products', cat=p.category_id) }}" class="btn ghost">Отмена</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Промокоды{% endblock %}
+{% block content %}
+<h1>Промокоды</h1>
+<details class="panel" {% if not rows %}open{% endif %}>
+  <summary>Создать промокод</summary>
+  <form method="post" action="{{ url_for('promo_add') }}">
+    {{ csrf_input() }}
+    <div class="field"><label for="code">Промокод</label><input id="code" type="text" name="code" maxlength="32" placeholder="SALE10" autocapitalize="characters" required>
+      <span class="hint">Латинские буквы и цифры. Регистр не важен.</span></div>
+    <div class="grid2">
+      <div class="field"><label for="kind">Тип скидки</label>
+        <select id="kind" name="kind"><option value="percent">Процент от цены</option><option value="fixed">Фиксированная сумма</option></select></div>
+      <div class="field"><label for="value">Размер скидки</label><input id="value" type="text" inputmode="decimal" name="value" placeholder="10" required></div>
+      <div class="field"><label for="max_uses">Сколько раз можно использовать</label><input id="max_uses" type="number" min="0" name="max_uses" value="0"><span class="hint">0 — без ограничений.</span></div>
+      <div class="field"><label for="expires">Действует до (включительно)</label><input id="expires" type="date" name="expires"><span class="hint">Пусто — бессрочно.</span></div>
+    </div>
+    <button class="btn">Создать промокод</button>
+  </form>
+</details>
+
+{% if rows %}
+<div class="list">
+  {% for r in rows %}
+  {% set expired = r.expires_at and r.expires_at <= now %}
+  {% set spent = r.max_uses and r.used >= r.max_uses %}
+  <div class="item">
+    <div class="body wide">
+      <div class="name code">{{ r.code }}</div>
+      <div class="meta">
+        Скидка {{ ('%s%%' % (r.value|num)) if r.kind == 'percent' else (r.value|money) }}
+        · использован {{ r.used }}{% if r.max_uses %} из {{ r.max_uses }}{% endif %} раз
+        · {% if r.expires_at %}до {{ (r.expires_at - 1)|dt|truncate(10, True, '') }}{% else %}бессрочно{% endif %}
+      </div>
+      <div class="meta">
+        {% if not r.active %}<span class="tag off">Выключен</span>
+        {% elif expired %}<span class="tag bad">Срок истёк</span>
+        {% elif spent %}<span class="tag bad">Лимит исчерпан</span>
+        {% else %}<span class="tag">Работает</span>{% endif %}
+      </div>
+      <div class="actions">
+        <form method="post" action="{{ url_for('promo_toggle', pid=r.id) }}">{{ csrf_input() }}<button class="btn ghost small">{{ 'Выключить' if r.active else 'Включить' }}</button></form>
+        <form method="post" action="{{ url_for('promo_delete', pid=r.id) }}" data-confirm="Удалить промокод {{ r.code }}?">{{ csrf_input() }}<button class="btn danger small">Удалить</button></form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="list"><div class="empty-note">Промокодов пока нет. Покупатели вводят промокод при оформлении заказа в боте.</div></div>
+{% endif %}
+{% endblock %}

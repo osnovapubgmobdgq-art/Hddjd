@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Баннеры{% endblock %}
+{% block content %}
+<h1>Баннеры</h1>
+<p class="hint">Активные баннеры показываются в боте по команде /start: каждый раз случайный из них.</p>
+<details class="panel" {% if not rows %}open{% endif %}>
+  <summary>Добавить баннер</summary>
+  <form method="post" action="{{ url_for('banner_add') }}" enctype="multipart/form-data">
+    {{ csrf_input() }}
+    <div class="field">
+      <label for="image">Картинка</label>
+      <input id="image" type="file" name="image" accept="image/png,image/jpeg,image/webp" required>
+    </div>
+    <div class="field">
+      <label for="caption">Подпись под баннером</label>
+      <textarea id="caption" name="caption" rows="3" maxlength="900"></textarea>
+    </div>
+    <button class="btn">Добавить баннер</button>
+  </form>
+</details>
+
+{% if rows %}
+<div class="list">
+  {% for b in rows %}
+  <div class="item">
+    <img class="thumb big" src="{{ url_for('uploads', name=b.image) }}" alt="" loading="lazy">
+    <div class="body">
+      <div class="name">{{ b.caption or 'Без подписи' }}</div>
+      <div class="meta">{{ b.created_at|dt }} · <span class="tag {{ '' if b.active else 'off' }}">{{ 'Показывается' if b.active else 'Скрыт' }}</span></div>
+      <div class="actions">
+        <form method="post" action="{{ url_for('banner_toggle', bid=b.id) }}">{{ csrf_input() }}<button class="btn ghost small">{{ 'Скрыть' if b.active else 'Показывать' }}</button></form>
+        <form method="post" action="{{ url_for('banner_delete', bid=b.id) }}" data-confirm="Удалить баннер?">{{ csrf_input() }}<button class="btn danger small">Удалить</button></form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="list"><div class="empty-note">Баннеров пока нет. Добавьте первый, и он появится в приветствии бота.</div></div>
+{% endif %}
+{% endblock %}

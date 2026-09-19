@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Заказы{% endblock %}
+{% block content %}
+<h1>Заказы</h1>
+<div class="pills" aria-label="Фильтр по статусу">
+  <a href="{{ url_for('orders') }}" class="{{ 'on' if not status else '' }}">Все</a>
+  {% for key, label in STATUSES.items() %}<a href="{{ url_for('orders', status=key) }}" class="{{ 'on' if status == key else '' }}">{{ label }}</a>{% endfor %}
+</div>
+{% if rows %}
+<div class="list">
+  {% for o in rows %}
+  <div class="item">
+    <div class="body wide">
+      <div class="name">№{{ o.id }} · {{ o.product_name }}</div>
+      <div class="meta">
+        {{ o.created_at|dt }} ·
+        {% if o.username %}<a href="https://t.me/{{ o.username }}" rel="noopener" target="_blank">@{{ o.username }}</a>{% else %}<a href="tg://user?id={{ o.user_id }}">профиль покупателя</a>{% endif %}
+        · id {{ o.user_id }}
+      </div>
+      <div class="meta">
+        Итого {{ o.total|money }}{% if o.discount %} (цена {{ o.price|money }}, скидка {{ o.discount|money }}{% if o.promo_code %}, промокод {{ o.promo_code }}{% endif %}){% endif %}
+      </div>
+      <div class="actions">
+        <form method="post" action="{{ url_for('order_status', oid=o.id) }}" class="inline">
+          {{ csrf_input() }}
+          <select name="status" aria-label="Статус заказа №{{ o.id }}" class="w-status">
+            {% for key, label in STATUSES.items() %}<option value="{{ key }}" {{ 'selected' if o.status == key else '' }}>{{ label }}</option>{% endfor %}
+          </select>
+          <button class="btn small">Сохранить статус</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="list"><div class="empty-note">{{ 'Заказов с таким статусом нет.' if status else 'Заказов пока нет.' }}</div></div>
+{% endif %}
+{% endblock %}

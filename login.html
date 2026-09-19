@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Вход{% endblock %}
+{% block solo %}
+<div class="panel">
+  <h1>Вход в админ-панель</h1>
+  {% if token %}
+  <p class="hint">Подтвердите вход по ссылке из Telegram.</p>
+  <form method="post">
+    <input type="hidden" name="token" value="{{ token }}">
+    <button class="btn block">Войти</button>
+  </form>
+  {% else %}
+  <p>Отправьте боту команду <b>/admin</b> и откройте полученную ссылку. Она одноразовая и работает 10 минут.</p>
+  {% endif %}
+  {% if password_enabled %}
+  <div class="divider"></div>
+  <form method="post">
+    <div class="field">
+      <label for="pw">Пароль</label>
+      <input id="pw" type="password" name="password" autocomplete="current-password">
+    </div>
+    <button class="btn ghost block">Войти по паролю</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

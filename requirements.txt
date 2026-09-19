@@ -1,0 +1,4 @@
+aiogram>=3.13,<4
+Flask>=3.0
+waitress>=3.0
+python-dotenv>=1.0

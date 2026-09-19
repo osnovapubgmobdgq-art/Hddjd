@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Товары{% endblock %}
+{% block content %}
+<h1>Товары</h1>
+
+<div class="pills" aria-label="Фильтр по категории">
+  <a href="{{ url_for('products') }}" class="{{ 'on' if not cat else '' }}">Все</a>
+  {% for c in cats %}<a href="{{ url_for('products', cat=c.id) }}" class="{{ 'on' if cat == c.id else '' }}">{{ c.name }}</a>{% endfor %}
+</div>
+
+<details class="panel" {% if not rows %}open{% endif %}>
+  <summary>Добавить товар</summary>
+  {% if cats %}
+  <form method="post" action="{{ url_for('product_add') }}" enctype="multipart/form-data">
+    {{ csrf_input() }}
+    <div class="field"><label for="name">Название</label><input id="name" type="text" name="name" maxlength="120" required></div>
+    <div class="grid2">
+      <div class="field"><label for="category_id">Категория</label>
+        <select id="category_id" name="category_id">{% for c in cats %}<option value="{{ c.id }}" {{ 'selected' if cat == c.id else '' }}>{{ c.name }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="price">Цена</label><input id="price" type="text" inputmode="decimal" name="price" placeholder="1499" required></div>
+    </div>
+    <div class="field"><label for="description">Описание</label><textarea id="description" name="description" rows="4" maxlength="900"></textarea></div>
+    <div class="field"><label for="image">Фото</label><input id="image" type="file" name="image" accept="image/png,image/jpeg,image/webp"></div>
+    <label class="check"><input type="checkbox" name="active" value="1" checked> Показывать в боте</label>
+    <button class="btn">Добавить товар</button>
+  </form>
+  {% else %}
+  <p>Сначала <a href="{{ url_for('categories') }}">создайте категорию</a>, потом добавляйте в неё товары.</p>
+  {% endif %}
+</details>
+
+{% if rows %}
+<details class="panel">
+  <summary>Изменить цены сразу у многих товаров</summary>
+  <form method="post" action="{{ url_for('product_bulk_price') }}" data-confirm="Изменить цены у выбранных товаров? Вернуть прежние цены можно только вручную.">
+    {{ csrf_input() }}
+    <div class="grid2">
+      <div class="field"><label for="bulk-cat">Где менять</label>
+        <select id="bulk-cat" name="category_id"><option value="">Во всех категориях</option>{% for c in cats %}<option value="{{ c.id }}" {{ 'selected' if cat == c.id else '' }}>{{ c.name }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="percent">На сколько процентов</label><input id="percent" type="text" inputmode="decimal" name="percent" placeholder="10 или -5" required></div>
+    </div>
+    <label class="check"><input type="checkbox" name="round" value="1"> Округлять до целых</label>
+    <button class="btn">Изменить цены</button>
+  </form>
+</details>
+
+<div class="list">
+  {% for p in rows %}
+  <div class="item">
+    {% if p.image %}<img class="thumb" src="{{ url_for('uploads', name=p.image) }}" alt="" loading="lazy">{% else %}<div class="thumb empty">нет фото</div>{% endif %}
+    <div class="body">
+      <div class="name"><a href="{{ url_for('product_edit', pid=p.id) }}" class="plain">{{ p.name }}</a></div>
+      <div class="meta">{{ p.cat_name }} · <span class="tag {{ '' if p.active else 'off' }}">{{ 'В продаже' if p.active else 'Скрыт' }}</span></div>
+      <div class="actions">
+        <form method="post" action="{{ url_for('product_price', pid=p.id) }}" class="inline">
+          {{ csrf_input() }}
+          <input type="text" inputmode="decimal" name="price" value="{{ p.price|num }}" class="w-price" aria-label="Цена, {{ p.name }}">
+          <button class="btn small">Сохранить цену</button>
+        </form>
+      </div>
+      <div class="actions">
+        <a href="{{ url_for('product_edit', pid=p.id) }}" class="btn ghost small">Изменить</a>
+        <form method="post" action="{{ url_for('product_toggle', pid=p.id) }}">{{ csrf_input() }}<button class="btn ghost small">{{ 'Скрыть' if p.active else 'Показать' }}</button></form>
+        <form method="post" action="{{ url_for('product_delete', pid=p.id) }}" data-confirm="Удалить товар «{{ p.name }}»?">{{ csrf_input() }}<button class="btn danger small">Удалить</button></form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="list"><div class="empty-note">Товаров пока нет. Добавьте первый, и он появится в боте внутри своей категории.</div></div>
+{% endif %}
+{% endblock %}
